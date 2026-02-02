@@ -53,7 +53,7 @@ class ScreeningRepository {
         return $stmt->execute(['id' => $id]);
     }
     
-    public function Conflict(int $room_id, string $start_time, string $end_time, ?int $screening_id = null): bool {
+    public function hasConflict(int $room_id, string $start_time, string $end_time, ?int $screening_id = null): bool {
         $sql = "SELECT COUNT(*) FROM screenings 
             WHERE room_id = :room_id 
             AND active = TRUE
