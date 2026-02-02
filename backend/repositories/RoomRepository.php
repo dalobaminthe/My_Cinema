@@ -15,7 +15,7 @@ class RoomRepository {
     }
 
     public function getById(int $id): ?Room {
-        $stmt = $this->pdo->prepare("SELECT * FROM rooms WHERE id = :id AND active = 1");
+        $stmt = $this->pdo->prepare("SELECT * FROM rooms WHERE id = :id AND active = TRUE");
         $stmt->execute(['id' => $id]);
         
         $result = $stmt->fetchObject('Room');
@@ -34,15 +34,14 @@ class RoomRepository {
     }
     
     public function update(Room $room): bool {
-    $stmt = $this->pdo->prepare("UPDATE rooms 
-    SET name = :name, capacity = :capacity, room_type = :room_type, active = :active WHERE id = :id");
+        $stmt = $this->pdo->prepare("UPDATE rooms 
+        SET name = :name, capacity = :capacity, room_type = :room_type WHERE id = :id");
     
     return $stmt->execute([
         'id' => $room->id,
         'name' => $room->name,
         'capacity' => $room->capacity,
         'room_type' => $room->room_type,
-        'active' => $room->active
     ]);
     }
 
