@@ -3,6 +3,7 @@
 require_once __DIR__ . '/../models/Room.php';
 
 class RoomRepository {
+    private PDO $pdo;
 
     public function __construct() {
         global $pdo;

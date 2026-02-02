@@ -11,7 +11,7 @@ class ScreeningRepository {
     }
 
     public function getAll(): array {
-        $stmt = $this->pdo->query("SELECT * FROM Screening WHERE active = TRUE");
+        $stmt = $this->pdo->query("SELECT * FROM screenings WHERE active = TRUE");
         return $stmt->fetchAll(PDO::FETCH_CLASS, 'Screening');
     }
 
