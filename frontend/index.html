@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My cinema - Back Office</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>My Cinema 🎬</h1>
+        <p>Back Office - Administration</p>
+    </header>
+
+    <nav class="onglets">
+        <button class="tab-button active" data-tab="films">Films 🎬</button>
+        <button class="tab-button" data-tab="salles">Salles 🎞️</button>
+        <button class="tab-button" data-tab="seances">Séances 🎟️</button>
+    </nav>
+
+    <main>
+        <section id="films" class="tab-content active">
+            <h2>Gestion des Films</h2>
+            
+            <div class="form-container">
+                <h3>Ajouter un film</h3>
+                <form id="add-movie-form">
+                    <input type="text" id="movie-title" placeholder="Titre *" required>
+                    <textarea id="movie-description" placeholder="Description"></textarea>
+                    <input type="number" id="movie-duration" placeholder="Durée (minutes) *" required>
+                    <input type="number" id="movie-year" placeholder="Année *" required>
+                    <input type="text" id="movie-genre" placeholder="Genre">
+                    <input type="text" id="movie-director" placeholder="Réalisateur">
+                    <button type="submit">Ajouter le film</button>
+                </form>
+            </div>
+
+            <div class="list-container">
+                <h3>Liste des films</h3>
+                <div id="movies-list">
+                    <div class="item">
+                        <h4>Harriet</h4>
+                        <p><strong>Durée :</strong> 125 minutes</p>
+                        <p><strong>Année :</strong> 2019</p>
+                        <p><strong>Genre :</strong> Biopic</p>
+                        <p><strong>Réalisateur :</strong> Kasi Lemmons</p>
+                        <div class="item-actions">
+                            <button class="btn-edit">Modifier</button>
+                            <button class="btn-delete">Supprimer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="salles" class="tab-content">
+            <h2>Gestion des Salles</h2>
+            
+            <div class="form-container">
+                <h3>Ajouter une salle</h3>
+                <form id="add-room-form">
+                    <input type="text" id="room-name" placeholder="Nom de la salle *" required>
+                    <input type="number" id="room-capacity" placeholder="Capacité *" required>
+                    <select id="room-type">
+                        <option value="">Type de salle</option>
+                        <option value="Standard">Standard</option>
+                        <option value="3D">3D</option>
+                        <option value="IMAX">IMAX</option>
+                        <option value="VIP">VIP</option>
+                    </select>
+                    <button type="submit">Ajouter la salle</button>
+                </form>
+            </div>
+
+            <div class="list-container">
+                <h3>Liste des salles</h3>
+                <div id="rooms-list"></div>
+            </div>
+        </section>
+
+        <section id="seances" class="tab-content">
+            <h2>Gestion des Séances</h2>
+            
+            <div class="form-container">
+                <h3>Ajouter une séance</h3>
+                <form id="add-screening-form">
+                    <select id="screening-movie" required>
+                        <option value="">Choisir un film *</option>
+                    </select>
+                    <select id="screening-room" required>
+                        <option value="">Choisir une salle *</option>
+                    </select>
+                    <input type="datetime-local" id="screening-start" required>
+                    <input type="datetime-local" id="screening-end" required>
+                    <button type="submit">Ajouter la séance</button>
+                </form>
+            </div>
+
+            <div class="list-container">
+                <h3>Liste des séances</h3>
+                <div id="screenings-list"></div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2026 My Cinema - Projet étudiant - Daloba M. - EPITECH</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
