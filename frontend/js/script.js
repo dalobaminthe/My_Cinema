@@ -24,3 +24,5 @@ tabButtons.forEach(button => {
         button.classList.add('active');
     });
 });
+
+// PAGE AVEC NOMBRE DE FILMS -- PAGINATION
