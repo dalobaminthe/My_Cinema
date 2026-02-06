@@ -60,10 +60,18 @@ class MovieRepository {
     //supp si pas de séance
     public function delete(int $id): bool {
         try {
-            $stmt = $this->pdo->prepare("DELETE FROM movies WHERE id = :id");
-            return $stmt->execute(['id' => $id]);
-        } catch (PDOException $e) {
-            return false; // Si erreur : false
+            $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM screenings WHERE movie_id = :id AND active = TRUE");
+            $stmt->execute(['id' => $id]);
+            $count = $stmt->fetchColumn();
+        
+        if ($count > 0) {
+            return false;
         }
+        
+        $stmt = $this->pdo->prepare("DELETE FROM movies WHERE id = :id");
+        return $stmt->execute(['id' => $id]);
+        } catch (PDOException $e) {
+        return false;
     }
+}
 }
