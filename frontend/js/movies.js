@@ -1,25 +1,24 @@
 const API_URL = 'http://localhost:8000/index.php';
 
-// ---- AFFICHER LA LISTE DES FILMS ------- //
-
 let currentPage = 1;
-const perPage = 10;
 
+// ---- AFFICHER LA LISTE DES FILMS AVEC PAGINATION -------
 function AfficheMovies(page = 1) {
     currentPage = page;
     
-    fetch(`${API_URL}?action=list_movies&page=${page}&perPage=${perPage}`)
+    fetch(`${API_URL}?action=list_movies&page=${page}`)
         .then(res => res.json())
         .then(data => {
             const moviesList = document.getElementById('movies-list');
             moviesList.innerHTML = '';
             
-            if (data.movies.length === 0) {
+            // Si pas de films
+            if (!data.movies || data.movies.length === 0) {
                 moviesList.innerHTML = '<p style="color: #94a3b8;">Aucun film enregistré</p>';
                 return;
             }
             
-            // Afficher les films
+            // Afficher chaque film
             data.movies.forEach(movie => {
                 const movieItem = document.createElement('div');
                 movieItem.className = 'item';
@@ -29,7 +28,7 @@ function AfficheMovies(page = 1) {
                     <p><strong>Année :</strong> ${movie.release_year}</p>
                     ${movie.genre ? `<p><strong>Genre :</strong> ${movie.genre}</p>` : ''}
                     ${movie.director ? `<p><strong>Réalisateur :</strong> ${movie.director}</p>` : ''}
-                    ${movie.description ? `<p><strong>Synopsis :</strong> ${movie.description}</p>` : ''}
+                    ${movie.description ? `<p><strong>Synopsis :</strong> ${movie.description.substring(0, 150)}...</p>` : ''}
                     <div class="item-actions">
                         <button class="btn-delete" onclick="deleteMovie(${movie.id}, '${movie.title.replace(/'/g, "\\'")}')">Supprimer</button>
                     </div>
@@ -37,8 +36,10 @@ function AfficheMovies(page = 1) {
                 moviesList.appendChild(movieItem);
             });
             
-            // Afficher la pagination
-            displayPagination(data.page, data.totalPages);
+            // AFFICHER LA PAGINATION
+            if (data.totalPages > 1) {
+                afficherPagination(data.page, data.totalPages);
+            }
         })
         .catch(err => {
             console.error('Erreur:', err);
@@ -46,53 +47,107 @@ function AfficheMovies(page = 1) {
         });
 }
 
-// AFFICHER LA PAGINATION
-function displayPagination(currentPage, totalPages) {
+// AFFICHER LES BOUTONS DE PAGINATION
+function afficherPagination(currentPage, totalPages) {
     const moviesList = document.getElementById('movies-list');
     
-    if (totalPages <= 1) {
-        return; // Pas besoin de pagination
-    }
-    
     const paginationDiv = document.createElement('div');
-    paginationDiv.style.cssText = 'display: flex; justify-content: center; gap: 0.5rem; margin-top: 2rem; flex-wrap: wrap;';
+    paginationDiv.style.cssText = `
+        display: flex; 
+        justify-content: center; 
+        align-items: center;
+        gap: 0.5rem; 
+        margin-top: 2rem; 
+        padding: 1rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    `;
     
-    // Bouton Précédent
+    // Bouton "Précédent"
     if (currentPage > 1) {
         const prevBtn = document.createElement('button');
-        prevBtn.textContent = '← Précédent';
-        prevBtn.style.cssText = 'padding: 0.6rem 1rem; background: #0891b2; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;';
+        prevBtn.innerHTML = '← Précédent';
+        prevBtn.style.cssText = `
+            padding: 0.7rem 1.2rem; 
+            background: #0891b2; 
+            color: white; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: 600;
+            font-family: 'Space Grotesk', sans-serif;
+        `;
+        prevBtn.onmouseover = () => prevBtn.style.background = '#06b6d4';
+        prevBtn.onmouseout = () => prevBtn.style.background = '#0891b2';
         prevBtn.onclick = () => AfficheMovies(currentPage - 1);
         paginationDiv.appendChild(prevBtn);
     }
     
-    // Numéros de pages
+    // Boutons de numéros de pages
     for (let i = 1; i <= totalPages; i++) {
         const pageBtn = document.createElement('button');
         pageBtn.textContent = i;
         
         if (i === currentPage) {
-            pageBtn.style.cssText = 'padding: 0.6rem 1rem; background: #0891b2; color: white; border: none; border-radius: 6px; font-weight: 700;';
+            // Page active
+            pageBtn.style.cssText = `
+                padding: 0.7rem 1rem; 
+                background: #0891b2; 
+                color: white; 
+                border: none; 
+                border-radius: 6px; 
+                font-weight: 700;
+                font-family: 'Space Grotesk', sans-serif;
+                min-width: 40px;
+            `;
         } else {
-            pageBtn.style.cssText = 'padding: 0.6rem 1rem; background: white; color: #0891b2; border: 2px solid #0891b2; border-radius: 6px; cursor: pointer; font-weight: 600;';
+            // Autres pages
+            pageBtn.style.cssText = `
+                padding: 0.7rem 1rem; 
+                background: white; 
+                color: #0891b2; 
+                border: 2px solid #0891b2; 
+                border-radius: 6px; 
+                cursor: pointer; 
+                font-weight: 600;
+                font-family: 'Space Grotesk', sans-serif;
+                min-width: 40px;
+            `;
+            pageBtn.onmouseover = () => {
+                pageBtn.style.background = '#ecfeff';
+            };
+            pageBtn.onmouseout = () => {
+                pageBtn.style.background = 'white';
+            };
             pageBtn.onclick = () => AfficheMovies(i);
         }
         
         paginationDiv.appendChild(pageBtn);
     }
     
-    // Bouton Suivant
+    // Bouton "Suivant"
     if (currentPage < totalPages) {
         const nextBtn = document.createElement('button');
-        nextBtn.textContent = 'Suivant →';
-        nextBtn.style.cssText = 'padding: 0.6rem 1rem; background: #0891b2; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;';
+        nextBtn.innerHTML = 'Suivant →';
+        nextBtn.style.cssText = `
+            padding: 0.7rem 1.2rem; 
+            background: #0891b2; 
+            color: white; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: 600;
+            font-family: 'Space Grotesk', sans-serif;
+        `;
+        nextBtn.onmouseover = () => nextBtn.style.background = '#06b6d4';
+        nextBtn.onmouseout = () => nextBtn.style.background = '#0891b2';
         nextBtn.onclick = () => AfficheMovies(currentPage + 1);
         paginationDiv.appendChild(nextBtn);
     }
     
     moviesList.appendChild(paginationDiv);
 }
-
 
 // ------- AJOUTER UN FILM -------
 document.getElementById('add-movie-form').addEventListener('submit', function(e) {
@@ -119,7 +174,7 @@ document.getElementById('add-movie-form').addEventListener('submit', function(e)
         if (data.success) {
             showMessage('success', 'Film ajouté avec succès !');
             document.getElementById('add-movie-form').reset();
-            AfficheMovies();
+            AfficheMovies(1); // Retour page 1
         } else {
             showMessage('error', data.error || 'Erreur lors de l\'ajout');
         }
@@ -136,14 +191,12 @@ function deleteMovie(id, title) {
         return;
     }
     
-    fetch(`${API_URL}?action=delete_movie&id=${id}`, {
-        method: 'GET'
-    })
+    fetch(`${API_URL}?action=delete_movie&id=${id}`)
     .then(res => res.json())
     .then(data => {
         if (data.success) {
             showMessage('success', 'Film supprimé avec succès !');
-            AfficheMovies();
+            AfficheMovies(currentPage);
         } else {
             showMessage('error', data.error || 'Impossible de supprimer ce film');
         }
@@ -170,5 +223,5 @@ function showMessage(type, message) {
 
 // ------- CHARGER LES FILMS AU DÉMARRAGE -------
 document.addEventListener('DOMContentLoaded', function() {
-    AfficheMovies();
+    AfficheMovies(1);
 });

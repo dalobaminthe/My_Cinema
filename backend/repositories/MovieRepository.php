@@ -76,12 +76,12 @@ class MovieRepository {
     }
 
     // Récupérer les films avec pagination
-    public function Pagination(int $page = 1, int $perPage = 5): array {
+    public function getAllPaginated(int $page = 1, int $perPage = 3): array {
     $offset = ($page - 1) * $perPage;
     
     $stmt = $this->pdo->prepare("
         SELECT * FROM movies 
-        ORDER BY created_at DESC
+        ORDER BY id DESC
         LIMIT :limit OFFSET :offset
     ");
     $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
@@ -96,6 +96,4 @@ public function count(): int {
     $stmt = $this->pdo->query("SELECT COUNT(*) FROM movies");
     return (int)$stmt->fetchColumn();
 }
-
-
 }
