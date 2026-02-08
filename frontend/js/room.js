@@ -54,6 +54,11 @@ document.getElementById('add-room-form').addEventListener('submit', function(e) 
             showRoomMessage('success', 'Salle ajoutée avec succès !');
             document.getElementById('add-room-form').reset();
             loadRooms();
+
+        if (typeof loadScreeningOptions === 'function') {
+            loadScreeningOptions();
+        }
+
         } else {
             showRoomMessage('error', data.error || 'Erreur lors de l\'ajout');
         }
