@@ -36,7 +36,7 @@ class ScreeningController {
     public function add() {
     $data = json_decode(file_get_contents('php://input'), true);
     
-    // Validation
+    // Validations.js
     if (empty($data['movie_id']) || empty($data['room_id']) || empty($data['start_time']) || empty($data['end_time'])) {
         echo json_encode(['error' => 'Données manquantes']);
         return;

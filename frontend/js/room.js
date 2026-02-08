@@ -1,0 +1,108 @@
+// AFFICHER LA LISTE DES SALLES
+function loadRooms() {
+    fetch(`${API_URL}?action=list_rooms`)
+        .then(res => res.json())
+        .then(rooms => {
+            const roomsList = document.getElementById('rooms-list');
+            roomsList.innerHTML = '';
+            
+            if (rooms.length === 0) {
+                roomsList.innerHTML = '<p style="color: #94a3b8;">Aucune salle enregistrée</p>';
+                return;
+            }
+            
+            rooms.forEach(room => {
+                const roomItem = document.createElement('div');
+                roomItem.className = 'item';
+                roomItem.innerHTML = `
+                    <h4>${room.name}</h4>
+                    <p><strong>Capacité :</strong> ${room.capacity} places</p>
+                    ${room.room_type ? `<p><strong>Type :</strong> ${room.room_type}</p>` : ''}
+                    <div class="item-actions">
+                        <button class="btn-delete" onclick="deleteRoom(${room.id}, '${room.name.replace(/'/g, "\\'")}')">Supprimer</button>
+                    </div>
+                `;
+                roomsList.appendChild(roomItem);
+            });
+        })
+        .catch(err => {
+            console.error('Erreur:', err);
+            showRoomMessage('error', 'Erreur lors du chargement des salles');
+        });
+}
+
+// AJOUTER UNE SALLE
+document.getElementById('add-room-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const roomData = {
+        name: document.getElementById('room-name').value,
+        capacity: parseInt(document.getElementById('room-capacity').value),
+        room_type: document.getElementById('room-type').value
+    };
+    
+    fetch(`${API_URL}?action=add_room`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(roomData)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showRoomMessage('success', 'Salle ajoutée avec succès !');
+            document.getElementById('add-room-form').reset();
+            loadRooms();
+        } else {
+            showRoomMessage('error', data.error || 'Erreur lors de l\'ajout');
+        }
+    })
+    .catch(err => {
+        console.error('Erreur:', err);
+        showRoomMessage('error', 'Erreur de communication avec le serveur');
+    });
+});
+
+// SUPPRIMER UNE SALLE (soft delete)
+function deleteRoom(id, name) {
+    if (!confirm(`Voulez-vous vraiment supprimer la salle "${name}" ?`)) {
+        return;
+    }
+    
+    fetch(`${API_URL}?action=delete_room&id=${id}`, {
+        method: 'GET'
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showRoomMessage('success', 'Salle supprimée avec succès !');
+            loadRooms();
+        } else {
+            showRoomMessage('error', data.error || 'Impossible de supprimer cette salle');
+        }
+    })
+    .catch(err => {
+        console.error('Erreur:', err);
+        showRoomMessage('error', 'Erreur lors de la suppression');
+    });
+}
+
+// AFFICHER UN MESSAGE
+function showRoomMessage(type, message) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${type}`;
+    messageDiv.textContent = message;
+    
+    const sallesSection = document.getElementById('salles');
+    sallesSection.insertBefore(messageDiv, sallesSection.firstChild);
+    
+    setTimeout(() => {
+        messageDiv.remove();
+    }, 4000);
+}
+
+// CHARGER LES SALLES AU DÉMARRAGE
+document.addEventListener('DOMContentLoaded', function() {
+    loadRooms();
+});

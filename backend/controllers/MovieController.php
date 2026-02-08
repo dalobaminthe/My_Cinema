@@ -10,9 +10,20 @@ class MovieController {
     
     // liste tous les films
     public function list() {
-        $movies = $this->repository->getAll();
-        echo json_encode($movies);
-    }
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $perPage = isset($_GET['perPage']) ? (int)$_GET['perPage'] : 10;
+    
+    $movies = $this->repository->Pagination($page, $perPage);
+    $total = $this->repository->count();
+    
+    echo json_encode([
+        'movies' => $movies,
+        'total' => $total,
+        'page' => $page,
+        'perPage' => $perPage,
+        'totalPages' => ceil($total / $perPage)
+    ]);
+}
     
     // recup film par id
     public function getOne() {

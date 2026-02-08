@@ -1,5 +1,7 @@
 # My Cinema - Projet de gestion de cinéma
 
+Projet de back-office pour gérer un cinéma (films, salles, séances).
+
 ## Installation
 
 1. Cloner le projet
@@ -13,5 +15,13 @@
 - PHP 8+ (POO, MVC)
 - MySQL avec PDO
 - HTML/CSS/JavaScript (Fetch API)
+
+## Fonctionnalités
+
+- ✅ CRUD Films
+- ✅ CRUD Salles (soft delete)
+- ✅ Gestion des séances avec vérification de conflits
+- ✅ API REST JSON
+- ✅ Architecture MVC
 
 Projet crée par Daloba M. dans le cadre d'un projet etudiant d'EPITECH.

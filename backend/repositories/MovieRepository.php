@@ -72,6 +72,30 @@ class MovieRepository {
         return $stmt->execute(['id' => $id]);
         } catch (PDOException $e) {
         return false;
+        }
     }
+
+    // Récupérer les films avec pagination
+    public function Pagination(int $page = 1, int $perPage = 5): array {
+    $offset = ($page - 1) * $perPage;
+    
+    $stmt = $this->pdo->prepare("
+        SELECT * FROM movies 
+        ORDER BY created_at DESC
+        LIMIT :limit OFFSET :offset
+    ");
+    $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+    $stmt->execute();
+    
+    return $stmt->fetchAll(PDO::FETCH_CLASS, 'Movie');
 }
+
+// Compter le nombre total de films
+public function count(): int {
+    $stmt = $this->pdo->query("SELECT COUNT(*) FROM movies");
+    return (int)$stmt->fetchColumn();
+}
+
+
 }

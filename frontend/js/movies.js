@@ -1,19 +1,26 @@
 const API_URL = 'http://localhost:8000/index.php';
 
 // ---- AFFICHER LA LISTE DES FILMS ------- //
-function AfficheMovies() {
-    fetch(`${API_URL}?action=list_movies`)
+
+let currentPage = 1;
+const perPage = 10;
+
+function AfficheMovies(page = 1) {
+    currentPage = page;
+    
+    fetch(`${API_URL}?action=list_movies&page=${page}&perPage=${perPage}`)
         .then(res => res.json())
-        .then(movies => {
+        .then(data => {
             const moviesList = document.getElementById('movies-list');
             moviesList.innerHTML = '';
             
-            if (movies.length === 0) {
+            if (data.movies.length === 0) {
                 moviesList.innerHTML = '<p style="color: #94a3b8;">Aucun film enregistré</p>';
                 return;
             }
             
-            movies.forEach(movie => {
+            // Afficher les films
+            data.movies.forEach(movie => {
                 const movieItem = document.createElement('div');
                 movieItem.className = 'item';
                 movieItem.innerHTML = `
@@ -29,12 +36,63 @@ function AfficheMovies() {
                 `;
                 moviesList.appendChild(movieItem);
             });
+            
+            // Afficher la pagination
+            displayPagination(data.page, data.totalPages);
         })
         .catch(err => {
             console.error('Erreur:', err);
             showMessage('error', 'Erreur lors du chargement des films');
         });
 }
+
+// AFFICHER LA PAGINATION
+function displayPagination(currentPage, totalPages) {
+    const moviesList = document.getElementById('movies-list');
+    
+    if (totalPages <= 1) {
+        return; // Pas besoin de pagination
+    }
+    
+    const paginationDiv = document.createElement('div');
+    paginationDiv.style.cssText = 'display: flex; justify-content: center; gap: 0.5rem; margin-top: 2rem; flex-wrap: wrap;';
+    
+    // Bouton Précédent
+    if (currentPage > 1) {
+        const prevBtn = document.createElement('button');
+        prevBtn.textContent = '← Précédent';
+        prevBtn.style.cssText = 'padding: 0.6rem 1rem; background: #0891b2; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;';
+        prevBtn.onclick = () => AfficheMovies(currentPage - 1);
+        paginationDiv.appendChild(prevBtn);
+    }
+    
+    // Numéros de pages
+    for (let i = 1; i <= totalPages; i++) {
+        const pageBtn = document.createElement('button');
+        pageBtn.textContent = i;
+        
+        if (i === currentPage) {
+            pageBtn.style.cssText = 'padding: 0.6rem 1rem; background: #0891b2; color: white; border: none; border-radius: 6px; font-weight: 700;';
+        } else {
+            pageBtn.style.cssText = 'padding: 0.6rem 1rem; background: white; color: #0891b2; border: 2px solid #0891b2; border-radius: 6px; cursor: pointer; font-weight: 600;';
+            pageBtn.onclick = () => AfficheMovies(i);
+        }
+        
+        paginationDiv.appendChild(pageBtn);
+    }
+    
+    // Bouton Suivant
+    if (currentPage < totalPages) {
+        const nextBtn = document.createElement('button');
+        nextBtn.textContent = 'Suivant →';
+        nextBtn.style.cssText = 'padding: 0.6rem 1rem; background: #0891b2; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;';
+        nextBtn.onclick = () => AfficheMovies(currentPage + 1);
+        paginationDiv.appendChild(nextBtn);
+    }
+    
+    moviesList.appendChild(paginationDiv);
+}
+
 
 // ------- AJOUTER UN FILM -------
 document.getElementById('add-movie-form').addEventListener('submit', function(e) {
