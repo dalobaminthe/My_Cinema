@@ -227,6 +227,26 @@ button[type="submit"]:active {
     box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
 }
 
+.btn-cancel {
+    background: white;
+    color: #475569;
+    border: 2px solid #cbd5e1;
+    padding: 1rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Space Grotesk', sans-serif;
+    width: 100%;
+    margin-top: 0.8rem;
+}
+
+.btn-cancel:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+}
+
 .btn-delete {
     background:#b51b1b;
     color: white;

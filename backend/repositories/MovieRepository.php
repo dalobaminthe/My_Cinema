@@ -63,15 +63,18 @@ class MovieRepository {
             $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM screenings WHERE movie_id = :id AND active = TRUE");
             $stmt->execute(['id' => $id]);
             $count = $stmt->fetchColumn();
-        
-        if ($count > 0) {
-            return false;
-        }
-        
-        $stmt = $this->pdo->prepare("DELETE FROM movies WHERE id = :id");
-        return $stmt->execute(['id' => $id]);
+
+            if ($count > 0) {
+                return false;
+            }
+
+            $stmt = $this->pdo->prepare("DELETE FROM screenings WHERE movie_id = :id");
+            $stmt->execute(['id' => $id]);
+
+            $stmt = $this->pdo->prepare("DELETE FROM movies WHERE id = :id");
+            return $stmt->execute(['id' => $id]);
         } catch (PDOException $e) {
-        return false;
+            return false;
         }
     }
 

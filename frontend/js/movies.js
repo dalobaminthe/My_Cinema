@@ -30,6 +30,7 @@ function AfficheMovies(page = 1) {
                     ${movie.director ? `<p><strong>Réalisateur :</strong> ${movie.director}</p>` : ''}
                     ${movie.description ? `<p><strong>Synopsis :</strong> ${movie.description.substring(0, 150)}...</p>` : ''}
                     <div class="item-actions">
+                        <button class="btn-edit" onclick="editMovie(${movie.id})">Modifier</button>
                         <button class="btn-delete" onclick="deleteMovie(${movie.id}, '${movie.title.replace(/'/g, "\\'")}')">Supprimer</button>
                     </div>
                 `;
@@ -149,10 +150,12 @@ function afficherPagination(currentPage, totalPages) {
     moviesList.appendChild(paginationDiv);
 }
 
-// ------- AJOUTER UN FILM -------
+// ------- AJOUTER OU MODIFIER UN FILM -------
+let editingMovieId = null;
+
 document.getElementById('add-movie-form').addEventListener('submit', function(e) {
     e.preventDefault();
-    
+
     const movieData = {
         title: document.getElementById('movie-title').value,
         description: document.getElementById('movie-description').value,
@@ -161,8 +164,15 @@ document.getElementById('add-movie-form').addEventListener('submit', function(e)
         genre: document.getElementById('movie-genre').value,
         director: document.getElementById('movie-director').value
     };
-    
-    fetch(`${API_URL}?action=add_movie`, {
+
+    const isEditing = editingMovieId !== null;
+    const action = isEditing ? 'update_movie' : 'add_movie';
+
+    if (isEditing) {
+        movieData.id = editingMovieId;
+    }
+
+    fetch(`${API_URL}?action=${action}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -172,11 +182,11 @@ document.getElementById('add-movie-form').addEventListener('submit', function(e)
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            showMessage('success', 'Film ajouté avec succès !');
-            document.getElementById('add-movie-form').reset();
-            AfficheMovies(1); // Retour page 1
+            showMessage('success', isEditing ? 'Film modifié avec succès !' : 'Film ajouté avec succès !');
+            cancelEditMovie();
+            AfficheMovies(isEditing ? currentPage : 1);
         } else {
-            showMessage('error', data.error || 'Erreur lors de l\'ajout');
+            showMessage('error', data.error || (isEditing ? 'Erreur lors de la modification' : 'Erreur lors de l\'ajout'));
         }
     })
     .catch(err => {
@@ -184,6 +194,51 @@ document.getElementById('add-movie-form').addEventListener('submit', function(e)
         showMessage('error', 'Erreur de communication avec le serveur');
     });
 });
+
+// ------- PASSER EN MODE ÉDITION -------
+function editMovie(id) {
+    fetch(`${API_URL}?action=get_movie&id=${id}`)
+        .then(res => res.json())
+        .then(movie => {
+            if (movie.error) {
+                showMessage('error', movie.error);
+                return;
+            }
+
+            editingMovieId = movie.id;
+
+            document.getElementById('movie-id').value = movie.id;
+            document.getElementById('movie-title').value = movie.title;
+            document.getElementById('movie-description').value = movie.description || '';
+            document.getElementById('movie-duration').value = movie.duration;
+            document.getElementById('movie-year').value = movie.release_year;
+            document.getElementById('movie-genre').value = movie.genre || '';
+            document.getElementById('movie-director').value = movie.director || '';
+
+            document.getElementById('movie-form-title').textContent = 'Modifier le film';
+            document.getElementById('movie-submit-btn').textContent = 'Enregistrer les modifications';
+            document.getElementById('movie-cancel-btn').style.display = 'inline-block';
+
+            document.getElementById('add-movie-form').scrollIntoView({ behavior: 'smooth' });
+        })
+        .catch(err => {
+            console.error('Erreur:', err);
+            showMessage('error', 'Erreur lors du chargement du film');
+        });
+}
+
+// ------- ANNULER L'ÉDITION -------
+function cancelEditMovie() {
+    editingMovieId = null;
+    document.getElementById('add-movie-form').reset();
+    document.getElementById('movie-form-title').textContent = 'Ajouter un film';
+    document.getElementById('movie-submit-btn').textContent = 'Ajouter le film';
+    document.getElementById('movie-cancel-btn').style.display = 'none';
+}
+
+document.getElementById('movie-cancel-btn').addEventListener('click', cancelEditMovie);
+
+
 
 // ------- SUPPRIMER UN FILM -------
 function deleteMovie(id, title) {

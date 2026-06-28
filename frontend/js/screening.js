@@ -105,6 +105,7 @@ function loadScreenings() {
                     <p><strong>Début :</strong> ${startDate.toLocaleString('fr-FR')}</p>
                     <p><strong>Fin :</strong> ${endDate.toLocaleString('fr-FR')}</p>
                     <div class="item-actions">
+                        <button class="btn-edit" onclick="editScreening(${screening.id})">Modifier</button>
                         <button class="btn-delete" onclick="deleteScreening(${screening.id})">Supprimer</button>
                     </div>
                 `;
@@ -116,18 +117,27 @@ function loadScreenings() {
         });
 }
 
-// AJOUTER UNE SÉANCE
+// AJOUTER OU MODIFIER UNE SÉANCE
+let editingScreeningId = null;
+
 document.getElementById('add-screening-form').addEventListener('submit', function(e) {
     e.preventDefault();
-    
+
     const screeningData = {
         movie_id: parseInt(document.getElementById('screening-movie').value),
         room_id: parseInt(document.getElementById('screening-room').value),
         start_time: document.getElementById('screening-start').value.replace('T', ' ') + ':00',
         end_time: document.getElementById('screening-end').value.replace('T', ' ') + ':00'
     };
-    
-    fetch(`${API_URL}?action=add_screening`, {
+
+    const isEditing = editingScreeningId !== null;
+    const action = isEditing ? 'update_screening' : 'add_screening';
+
+    if (isEditing) {
+        screeningData.id = editingScreeningId;
+    }
+
+    fetch(`${API_URL}?action=${action}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -137,11 +147,11 @@ document.getElementById('add-screening-form').addEventListener('submit', functio
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            alert('✅ Séance ajoutée avec succès !');
-            document.getElementById('add-screening-form').reset();
+            alert(isEditing ? '✅ Séance modifiée avec succès !' : '✅ Séance ajoutée avec succès !');
+            cancelEditScreening();
             loadScreenings();
         } else {
-            alert('❌ ' + (data.error || 'Erreur lors de l\'ajout'));
+            alert('❌ ' + (data.error || (isEditing ? 'Erreur lors de la modification' : 'Erreur lors de l\'ajout')));
         }
     })
     .catch(err => {
@@ -149,6 +159,47 @@ document.getElementById('add-screening-form').addEventListener('submit', functio
         alert('❌ Erreur de communication avec le serveur');
     });
 });
+
+// PASSER EN MODE ÉDITION
+function editScreening(id) {
+    fetch(`${API_URL}?action=get_screening&id=${id}`)
+        .then(res => res.json())
+        .then(screening => {
+            if (screening.error) {
+                alert('❌ ' + screening.error);
+                return;
+            }
+
+            editingScreeningId = screening.id;
+
+            document.getElementById('screening-id').value = screening.id;
+            document.getElementById('screening-movie').value = screening.movie_id;
+            document.getElementById('screening-room').value = screening.room_id;
+            document.getElementById('screening-start').value = screening.start_time.replace(' ', 'T').substring(0, 16);
+            document.getElementById('screening-end').value = screening.end_time.replace(' ', 'T').substring(0, 16);
+
+            document.getElementById('screening-form-title').textContent = 'Modifier la séance';
+            document.getElementById('screening-submit-btn').textContent = 'Enregistrer les modifications';
+            document.getElementById('screening-cancel-btn').style.display = 'inline-block';
+
+            document.getElementById('add-screening-form').scrollIntoView({ behavior: 'smooth' });
+        })
+        .catch(err => {
+            console.error('Erreur:', err);
+            alert('❌ Erreur lors du chargement de la séance');
+        });
+}
+
+// ANNULER L'ÉDITION
+function cancelEditScreening() {
+    editingScreeningId = null;
+    document.getElementById('add-screening-form').reset();
+    document.getElementById('screening-form-title').textContent = 'Ajouter une séance';
+    document.getElementById('screening-submit-btn').textContent = 'Ajouter la séance';
+    document.getElementById('screening-cancel-btn').style.display = 'none';
+}
+
+document.getElementById('screening-cancel-btn').addEventListener('click', cancelEditScreening);
 
 // SUPPRIMER UNE SÉANCE
 function deleteScreening(id) {

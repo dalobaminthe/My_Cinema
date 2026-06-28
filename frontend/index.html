@@ -23,15 +23,17 @@
             <h2>Gestion des Films</h2>
             
             <div class="form-container">
-                <h3>Ajouter un film</h3>
+                <h3 id="movie-form-title">Ajouter un film</h3>
                 <form id="add-movie-form">
+                    <input type="hidden" id="movie-id">
                     <input type="text" id="movie-title" placeholder="Titre *" required>
                     <textarea id="movie-description" placeholder="Description"></textarea>
                     <input type="number" id="movie-duration" placeholder="Durée (minutes) *" required>
                     <input type="number" id="movie-year" placeholder="Année *" required>
                     <input type="text" id="movie-genre" placeholder="Genre">
                     <input type="text" id="movie-director" placeholder="Réalisateur">
-                    <button type="submit">Ajouter le film</button>
+                    <button type="submit" id="movie-submit-btn">Ajouter le film</button>
+                    <button type="button" id="movie-cancel-btn" class="btn-cancel" style="display:none;">Annuler</button>
                 </form>
             </div>
 
@@ -46,8 +48,9 @@
             <h2>Gestion des Salles</h2>
             
             <div class="form-container">
-                <h3>Ajouter une salle</h3>
+                <h3 id="room-form-title">Ajouter une salle</h3>
                 <form id="add-room-form">
+                    <input type="hidden" id="room-id">
                     <input type="text" id="room-name" placeholder="Nom de la salle *" required>
                     <input type="number" id="room-capacity" placeholder="Capacité *" required>
                     <select id="room-type">
@@ -57,7 +60,8 @@
                         <option value="IMAX">IMAX</option>
                         <option value="VIP">VIP</option>
                     </select>
-                    <button type="submit">Ajouter la salle</button>
+                    <button type="submit" id="room-submit-btn">Ajouter la salle</button>
+                    <button type="button" id="room-cancel-btn" class="btn-cancel" style="display:none;">Annuler</button>
                 </form>
             </div>
 
@@ -71,8 +75,9 @@
             <h2>Gestion des Séances</h2>
             
             <div class="form-container">
-                <h3>Ajouter une séance</h3>
+                <h3 id="screening-form-title">Ajouter une séance</h3>
                 <form id="add-screening-form">
+                    <input type="hidden" id="screening-id">
                     <select id="screening-movie" required>
                         <option value="">Choisir un film *</option>
                     </select>
@@ -81,7 +86,8 @@
                     </select>
                     <input type="datetime-local" id="screening-start" required>
                     <input type="datetime-local" id="screening-end" required>
-                    <button type="submit">Ajouter la séance</button>
+                    <button type="submit" id="screening-submit-btn">Ajouter la séance</button>
+                    <button type="button" id="screening-cancel-btn" class="btn-cancel" style="display:none;">Annuler</button>
                 </form>
             </div>
 
